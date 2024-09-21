@@ -352,7 +352,7 @@ section {
     height: 100%;
 }
 
-@media (max-width: 468px) {
+@media (max-width: 268px) {
     .title {
         margin-bottom: 0;
         font-size: 40px;
