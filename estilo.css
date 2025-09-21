@@ -6,7 +6,15 @@
     vertical-align: baseline;
 }
 
-
+.wrapper {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    overflow: hidden;
+    background: #24C6DC;
+    background: -webkit-linear-gradient(to bottom, #6a5eec, #7a03f9);
+    background: linear-gradient(to bottom, #5245e5, #8c24dc);
+}
 .head {
     display: flex;
     align-items: center;
@@ -45,8 +53,9 @@
 
 .inicio {
     position: absolute;
-    right: 700px;
-    top: 300px;
+    top: 50%;
+    right: 50%;
+    transform: translate(50%, -50%);
 }
 
 .header {
@@ -160,7 +169,6 @@ p {
     width: 100%;
     height: 100%;
     transition: 300ms;
-
 }
 
 .text:hover span {
