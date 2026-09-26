@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feliz 14 de Febrero</title>
     <link rel="stylesheet" href="stilo.css">
-    <script src="mian.js" type="text/javascript"></script>
+    <script src="mian.js" type="text/javascript" defer></script>
 </head>
 
 <body>
@@ -13,15 +16,172 @@
         </a>
     </div>
 
-    <body>
+    <main class="content-container">
         <h1 class="cabeza">Feliz 14 de febrero u.u</h1>
-        <h2>Esta cancion es muy bonita, como vos</h2>
-    </body>
+        <h2>Canciones que me recuerdan a vos<3 </h2>
 
-    <audio controls autoplay loop class="audios">
-        <source src="Lady Gaga Bruno Mars  Die With A Smile.mp3">
-        <source src="Zoé  Labios Rotos.mp3">
-        El navegador no pudo reproducir el audio unu.
-    </audio>
+        <div style="text-align: center; margin-bottom: 20px; display: flex; flex-direction: column; gap: 10px; align-items: center;">
+            <label for="audio-input" class="boton-elegante" style="cursor: pointer; padding: 10px 25px; font-size: 1rem;">
+                ➕ Subir archivo de audio
+            </label>
+            <input type="file" id="audio-input" accept="audio/*" style="display: none;" multiple>
+            
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <input type="text" id="youtube-url" placeholder="Pega el link de YouTube..." style="padding: 10px; border-radius: 20px; border: none; width: 250px;">
+                <button id="add-youtube" class="boton-elegante" style="padding: 10px 20px; font-size: 0.9rem;">Añadir</button>
+            </div>
+        </div>
+
+        <div class="audio-playlist">
+            
+        </div>
+    </main>
+
+    <script>
+        const audioInput = document.getElementById('audio-input');
+        const audioPlaylist = document.querySelector('.audio-playlist');
+        const youtubeUrl = document.getElementById('youtube-url');
+        const addYoutube = document.getElementById('add-youtube');
+
+        // IndexedDB para guardar archivos de audio sin límite de tamaño
+        const DB_NAME = 'MusicAppDB';
+        const DB_VERSION = 1;
+        let db;
+
+        function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                request.onupgradeneeded = (e) => {
+                    const database = e.target.result;
+                    if (!database.objectStoreNames.contains('songs')) {
+                        database.createObjectStore('songs', { keyPath: 'id', autoIncrement: true });
+                    }
+                };
+                request.onsuccess = (e) => {
+                    db = e.target.result;
+                    resolve(db);
+                };
+                request.onerror = (e) => reject(e);
+            });
+        }
+
+        function saveSongToDB(name, blob) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(['songs'], 'readwrite');
+                const store = transaction.objectStore('songs');
+                const request = store.add({ name, blob });
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = (e) => reject(e);
+            });
+        }
+
+        function loadSongsFromDB() {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(['songs'], 'readonly');
+                const store = transaction.objectStore('songs');
+                const request = store.getAll();
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = (e) => reject(e);
+            });
+        }
+
+        function deleteSongFromDB(id) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(['songs'], 'readwrite');
+                const store = transaction.objectStore('songs');
+                const request = store.delete(id);
+                request.onsuccess = () => resolve();
+                request.onerror = (e) => reject(e);
+            });
+        }
+
+        // Inicializar y cargar canciones guardadas
+        initDB().then(async () => {
+            const songs = await loadSongsFromDB();
+            songs.forEach(song => {
+                const url = URL.createObjectURL(song.blob);
+                addAudioCard(song.id, song.name, url);
+            });
+        });
+
+        audioInput.addEventListener('change', async (e) => {
+            const files = e.target.files;
+            for (let file of files) {
+                const songName = file.name.replace(/\.[^/.]+$/, "");
+                const id = await saveSongToDB(songName, file);
+                const url = URL.createObjectURL(file);
+                addAudioCard(id, songName, url);
+            }
+            audioInput.value = '';
+        });
+
+        function addAudioCard(id, name, dataSrc) {
+            const card = document.createElement('div');
+            card.className = 'audio-card';
+            card.style.position = 'relative';
+            card.innerHTML = `
+                <button class="delete-btn" style="position: absolute; top: 10px; right: 15px; background: rgba(255,0,0,0.6); border: none; color: white; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; font-size: 0.9rem; z-index: 20;" title="Eliminar canción">×</button>
+                <p class="song-title">🎶 ${name}</p>
+                <audio controls class="audios">
+                    <source src="${dataSrc}" type="audio/mpeg">
+                    Tu navegador no soporta audio.
+                </audio>
+            `;
+
+            card.querySelector('.delete-btn').addEventListener('click', async () => {
+                if (id) {
+                    await deleteSongFromDB(id);
+                }
+                card.remove();
+            });
+
+            audioPlaylist.appendChild(card);
+        }
+
+        // YouTube functionality
+        function getYouTubeID(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        addYoutube.addEventListener('click', () => {
+            const url = youtubeUrl.value;
+            const id = getYouTubeID(url);
+            if (id) {
+                addYoutubeCard(id);
+                const savedYoutube = JSON.parse(localStorage.getItem('custom_youtube') || '[]');
+                savedYoutube.push(id);
+                localStorage.setItem('custom_youtube', JSON.stringify(savedYoutube));
+                youtubeUrl.value = '';
+            } else {
+                alert("URL de YouTube no válida");
+            }
+        });
+
+        function addYoutubeCard(id) {
+            const card = document.createElement('div');
+            card.className = 'audio-card';
+            card.style.position = 'relative';
+            card.innerHTML = `
+                <button class="delete-btn" style="position: absolute; top: 10px; right: 15px; background: rgba(255,0,0,0.6); border: none; color: white; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; font-size: 0.9rem; z-index: 20;" title="Eliminar video">×</button>
+                <iframe width="320" height="180" src="https://www.youtube.com/embed/${id}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 15px; margin-bottom: 5px;"></iframe>
+                <a href="https://www.youtube.com/watch?v=${id}" target="_blank" style="color: #ff9cfc; font-size: 0.9rem; text-decoration: underline;">Abrir en YouTube 🎵</a>
+            `;
+
+            card.querySelector('.delete-btn').addEventListener('click', () => {
+                card.remove();
+                let yts = JSON.parse(localStorage.getItem('custom_youtube') || '[]');
+                yts = yts.filter(item => item !== id);
+                localStorage.setItem('custom_youtube', JSON.stringify(yts));
+            });
+
+            audioPlaylist.appendChild(card);
+        }
+
+        const savedYoutube = JSON.parse(localStorage.getItem('custom_youtube') || '[]');
+        savedYoutube.forEach(id => addYoutubeCard(id));
+    </script>
+</body>
 
 </html>

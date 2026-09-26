@@ -1,0 +1,78 @@
+/* Estilos modernos y estéticos para la galería de fotos */
+.envoltura {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    z-index: 10;
+}
+
+header h1 {
+    font-family: 'Pacifico', cursive, sans-serif;
+    color: #fff;
+    font-size: 2.8rem;
+    text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    margin-top: 20px;
+    text-align: center;
+    position: relative;
+    z-index: 10;
+}
+
+header h1 em {
+    color: #ff9cfc;
+    font-style: normal;
+}
+
+.gallery {
+    margin-top: 30px;
+}
+
+.gallery ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.gallery li {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gallery li:hover {
+    transform: translateY(-8px) scale(1.03);
+    box-shadow: 0 20px 40px rgba(255, 105, 180, 0.4);
+    border-color: rgba(255, 182, 193, 0.6);
+}
+
+.gallery img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+    cursor: pointer;
+}
+
+.gallery li:hover img {
+    transform: scale(1.1);
+}
+
+.attribution {
+    margin-top: 40px;
+    font-size: 1.2rem;
+    color: #fce4ec;
+    font-family: 'Pacifico', cursive, sans-serif;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}

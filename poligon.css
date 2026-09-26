@@ -1,96 +1,165 @@
 body {
     margin: 0;
     padding: 0;
+    color: #fff;
+    font-family: 'Pacifico', cursive, sans-serif;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #2d1b4e;
+    animation: introFade 2s ease-out forwards;
 }
 
 .wrapper {
-    position: relative;
     width: 100%;
+    min-height: 100vh;
     overflow: hidden;
-    background: #24C6DC;
-    background: -webkit-linear-gradient(to bottom, #6a5eec, #7a03f9);
-    background: linear-gradient(to bottom, #5245e5, #8c24dc);
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #120a1c;
+}
+
+
+@keyframes bgShift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes introFade {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 .box div {
     position: absolute;
-    width: 10px;
-    height: 30px;
-    background-color: transparent;
-    border-color: aliceblue;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(8px);
+    border: 2px solid rgba(255, 255, 255, 0.55);
     border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #38bdf8;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(56, 189, 248, 0.25);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 1;
 }
+
+
+.box div:hover {
+    transform: scale(1.25) rotate(10deg);
+    background: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 0 25px rgba(56, 189, 248, 0.55);
+    color: #e0f7ff;
+}
+
 
 .box div:nth-child(1) {
     top: 12%;
-    left: 42%;
-    animation: animate 10s linear infinite;
+    left: 15%;
+    width: 35px;
+    height: 35px;
+    animation: floatHeart 8s ease-in-out infinite;
 }
 
 .box div:nth-child(2) {
-    top: 70%;
-    left: 50%;
-    animation: animate 7s linear infinite;
+    top: 25% ;
+    left: 82%;
+    width: 40px;
+    height: 40px;
+    animation: floatHeart 6s ease-in-out infinite 1s;
 }
 
 .box div:nth-child(3) {
-    top: 17%;
-    left: 6%;
-    animation: animate 9s linear infinite;
+    top: 75%;
+    left: 12%;
+    width: 30px;
+    height: 30px;
+    animation: floatHeart 9s ease-in-out infinite 2s;
 }
 
 .box div:nth-child(4) {
-    top: 20%;
-    left: 60%;
-    animation: animate 10s linear infinite;
+    top: 80%;
+    left: 85%;
+    width: 45px;
+    height: 45px;
+    animation: floatHeart 7s ease-in-out infinite 0.5s;
 }
 
 .box div:nth-child(5) {
-    top: 67%;
-    left: 10%;
-    animation: animate 6s linear infinite;
+    top: 45%;
+    left: 48%;
+    width: 38px;
+    height: 38px;
+    animation: floatHeart 10s ease-in-out infinite 1.5s;
 }
 
 .box div:nth-child(6) {
-    top: 80%;
-    left: 70%;
-    animation: animate 12s linear infinite;
+    top: 18%;
+    left: 55%;
+    width: 32px;
+    height: 32px;
+    animation: floatHeart 7.5s ease-in-out infinite 2.5s;
 }
 
 .box div:nth-child(7) {
     top: 60%;
-    left: 80%;
-    animation: animate 15s linear infinite;
+    left: 25%;
+    width: 42px;
+    height: 42px;
+    animation: floatHeart 8.5s ease-in-out infinite 1.2s;
 }
 
 .box div:nth-child(8) {
-    top: 32%;
-    left: 25%;
-    animation: animate 16s linear infinite;
+    top: 88%;
+    left: 35%;
+    width: 36px;
+    height: 36px;
+    animation: floatHeart 6.5s ease-in-out infinite 0.8s;
 }
 
 .box div:nth-child(9) {
-    top: 90%;
-    left: 25%;
-    animation: animate 9s linear infinite;
+    top: 35%;
+    left: 8%;
+    width: 33px;
+    height: 33px;
+    animation: floatHeart 9.5s ease-in-out infinite 3s;
 }
 
 .box div:nth-child(10) {
-    top: 20%;
-    left: 80%;
-    animation: animate 5s linear infinite;
+    top: 30%;
+    left: 92%;
+    width: 38px;
+    height: 38px;
+    animation: floatHeart 8s ease-in-out infinite 2s;
 }
 
-
-@keyframes animate {
-    0% {
-        transform: scale(1) translateY(-10px);
-        opacity: 1;
+@keyframes floatHeart {
+    0%, 100% {
+        transform: translateY(0px) translateX(0px) rotate(0deg);
     }
-
-    100% {
-        transform: scale(9.3) translateY(100px);
-        border-radius: 50%;
-        opacity: 0;
+    33% {
+        transform: translateY(-25px) translateX(15px) rotate(10deg);
+    }
+    66% {
+        transform: translateY(20px) translateX(-15px) rotate(-10deg);
     }
 }

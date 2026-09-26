@@ -435,6 +435,31 @@
 </head>
 
 <body>
+    <div class="volver" style="position: absolute; top: 20px; left: 20px; z-index: 1000;">
+        <a href="index2.html" style="text-decoration: none;">
+            <button class="boton-elegante">volver</button>
+        </a>
+    </div>
+    <style>
+        .boton-elegante {
+            padding: 10px 20px;
+            border: 2px solid #ffeb3b;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: #ffeb3b;
+            font-size: 1.1rem;
+            cursor: pointer;
+            border-radius: 30px;
+            transition: all 0.4s ease;
+            outline: none;
+            font-weight: bold;
+            backdrop-filter: blur(5px);
+        }
+        .boton-elegante:hover {
+            background-color: #ffeb3b;
+            color: #000038;
+            transform: scale(1.05);
+        }
+    </style>
     <h1 class="titulo">Cada año voy a agregar más flores amarillas para que las veas</h1>
     <div class="flower__wrapper">
         <div class="flower__sparkles">

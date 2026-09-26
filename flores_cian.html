@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notitas con Amor, tu amor💖</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <link rel="stylesheet" href="estilo.css">
+    <link rel="stylesheet" href="poligon.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #000b1a 0%, #002b36 50%, #001f3f 100%);
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            color: #fff;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .volver {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+
+        .boton-elegante {
+            padding: 12px 28px;
+            border: 2px solid rgba(0, 255, 255, 0.4);
+            background: rgba(0, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            color: #00ffff;
+            font-size: 1.1rem;
+            cursor: pointer;
+            border-radius: 30px;
+            transition: all 0.4s ease;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 100;
+        }
+
+        .boton-elegante:hover {
+            background: #00ffff;
+            color: #000;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+            transform: translateY(-3px);
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 90%;
+            margin: 80px auto 40px auto;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        h1 {
+            font-family: 'Pacifico', cursive;
+            font-size: 3rem;
+            color: #00ffff;
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+            margin-bottom: 20px;
+        }
+
+        .add-note-box {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            margin-bottom: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+
+        textarea {
+            width: 100%;
+            max-width: 600px;
+            height: 100px;
+            padding: 15px;
+            border-radius: 15px;
+            border: 1px solid rgba(0, 255, 255, 0.4);
+            background: rgba(0, 0, 0, 0.3);
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            resize: none;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        textarea::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .notes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            padding: 10px;
+        }
+
+        .note-card {
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.15), rgba(255, 105, 180, 0.15));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+            text-align: left;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .note-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 255, 255, 0.4);
+            border-color: rgba(0, 255, 255, 0.5);
+        }
+
+        .note-text {
+            font-size: 1.1rem;
+            color: #fce4ec;
+            word-break: break-word;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+
+        .delete-note {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: rgba(255, 0, 0, 0.6);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s ease;
+            z-index: 10;
+        }
+
+        .delete-note:hover {
+            background: rgba(255, 0, 0, 0.9);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .cyan-heart {
+            position: fixed;
+            color: #00ffff;
+            font-size: 1.5rem;
+            pointer-events: none;
+            z-index: 0;
+            animation: fall linear forwards;
+        }
+
+        @keyframes fall {
+            from { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+            to { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="volver">
+        <a href="index2.html" class="boton-elegante">volver</a>
+    </div>
+
+    <div class="container">
+        <h1>Notitas con Amor, tu amor 💌</h1>
+
+        <div class="add-note-box">
+            <textarea id="note-input" placeholder="Escribí algo acá wachin..."></textarea>
+            <button id="add-note-btn" class="boton-elegante">Guardar Notita ✨</button>
+        </div>
+
+        <div class="notes-grid" id="notes-container">
+            <!-- Las notas se cargarán aquí -->
+        </div>
+    </div>
+
+    <script>
+        // IndexedDB para guardar notitas de forma permanente
+        const DB_NAME = 'NotesAppDB';
+        const DB_VERSION = 1;
+        let db;
+
+        function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                request.onupgradeneeded = (e) => {
+                    const database = e.target.result;
+                    if (!database.objectStoreNames.contains('notes')) {
+                        database.createObjectStore('notes', { keyPath: 'id', autoIncrement: true });
+                    }
+                };
+                request.onsuccess = (e) => {
+                    db = e.target.result;
+                    resolve(db);
+                };
+                request.onerror = (e) => reject(e);
+            });
+        }
+
+        function saveNoteToDB(text) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(['notes'], 'readwrite');
+                const store = transaction.objectStore('notes');
+                const request = store.add({ text, date: new Date().toLocaleDateString() });
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = (e) => reject(e);
+            });
+        }
+
+        function loadNotesFromDB() {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(['notes'], 'readonly');
+                const store = transaction.objectStore('notes');
+                const request = store.getAll();
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = (e) => reject(e);
+            });
+        }
+
+        function deleteNoteFromDB(id) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(['notes'], 'readwrite');
+                const store = transaction.objectStore('notes');
+                const request = store.delete(id);
+                request.onsuccess = () => resolve();
+                request.onerror = (e) => reject(e);
+            });
+        }
+
+        const notesContainer = document.getElementById('notes-container');
+        const noteInput = document.getElementById('note-input');
+        const addNoteBtn = document.getElementById('add-note-btn');
+
+        initDB().then(async () => {
+            const notes = await loadNotesFromDB();
+            notes.forEach(note => renderNote(note.id, note.text));
+        });
+
+        addNoteBtn.addEventListener('click', async () => {
+            const text = noteInput.value.trim();
+            if (text !== '') {
+                const id = await saveNoteToDB(text);
+                renderNote(id, text);
+                noteInput.value = '';
+            }
+        });
+
+        function renderNote(id, text) {
+            const card = document.createElement('div');
+            card.className = 'note-card';
+            card.innerHTML = `
+                <button class="delete-note" title="Eliminar notita">×</button>
+                <div class="note-text">${text}</div>
+            `;
+
+            card.querySelector('.delete-note').addEventListener('click', async () => {
+                if (id) {
+                    await deleteNoteFromDB(id);
+                }
+                card.remove();
+            });
+
+            notesContainer.prepend(card);
+        }
+
+        // Corazones flotantes
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('cyan-heart');
+            heart.style.left = Math.random() * 100 + "vw";
+            heart.style.animationDuration = Math.random() * 2 + 3 + "s";
+            heart.innerText = '💎';
+            document.body.appendChild(heart);
+            setTimeout(() => { heart.remove(); }, 5000);
+        }
+        setInterval(createHeart, 400);
+    </script>
+</body>
+
+</html>
