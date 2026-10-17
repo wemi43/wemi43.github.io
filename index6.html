@@ -37,69 +37,40 @@
         </div>
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+    <script src="supa.js"></script>
     <script>
         const audioInput = document.getElementById('audio-input');
         const audioPlaylist = document.querySelector('.audio-playlist');
         const youtubeUrl = document.getElementById('youtube-url');
         const addYoutube = document.getElementById('add-youtube');
 
-        // IndexedDB para guardar archivos de audio sin límite de tamaño
-        const DB_NAME = 'MusicAppDB';
-        const DB_VERSION = 1;
-        let db;
-
-        function initDB() {
-            return new Promise((resolve, reject) => {
-                const request = indexedDB.open(DB_NAME, DB_VERSION);
-                request.onupgradeneeded = (e) => {
-                    const database = e.target.result;
-                    if (!database.objectStoreNames.contains('songs')) {
-                        database.createObjectStore('songs', { keyPath: 'id', autoIncrement: true });
-                    }
-                };
-                request.onsuccess = (e) => {
-                    db = e.target.result;
-                    resolve(db);
-                };
-                request.onerror = (e) => reject(e);
-            });
+        // Canciones en Supabase Storage (se escuchan desde cualquier dispositivo)
+        function initDB() { return Promise.resolve(); }
+        async function saveSongToDB(name, file) {
+            const ext = (file.name.split('.').pop() || 'mp3').toLowerCase();
+            const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+            const up = await sb.storage.from('canciones').upload(path, file);
+            if (up.error) { alert('No se pudo subir la canción. ¿Iniciaste sesión? 🔒'); throw up.error; }
+            const { data, error } = await sb.from('songs').insert({ name, path }).select('id').single();
+            if (error) throw error;
+            return data.id;
         }
-
-        function saveSongToDB(name, blob) {
-            return new Promise((resolve, reject) => {
-                const transaction = db.transaction(['songs'], 'readwrite');
-                const store = transaction.objectStore('songs');
-                const request = store.add({ name, blob });
-                request.onsuccess = () => resolve(request.result);
-                request.onerror = (e) => reject(e);
-            });
+        async function loadSongsFromDB() {
+            const { data } = await sb.from('songs').select('*').order('created_at', { ascending: true });
+            return (data || []).map(x => ({ ...x, url: sb.storage.from('canciones').getPublicUrl(x.path).data.publicUrl }));
         }
-
-        function loadSongsFromDB() {
-            return new Promise((resolve, reject) => {
-                const transaction = db.transaction(['songs'], 'readonly');
-                const store = transaction.objectStore('songs');
-                const request = store.getAll();
-                request.onsuccess = () => resolve(request.result);
-                request.onerror = (e) => reject(e);
-            });
-        }
-
-        function deleteSongFromDB(id) {
-            return new Promise((resolve, reject) => {
-                const transaction = db.transaction(['songs'], 'readwrite');
-                const store = transaction.objectStore('songs');
-                const request = store.delete(id);
-                request.onsuccess = () => resolve();
-                request.onerror = (e) => reject(e);
-            });
+        async function deleteSongFromDB(id) {
+            const { data } = await sb.from('songs').select('path').eq('id', id).maybeSingle();
+            await sb.from('songs').delete().eq('id', id);
+            if (data) await sb.storage.from('canciones').remove([data.path]);
         }
 
         // Inicializar y cargar canciones guardadas
         initDB().then(async () => {
             const songs = await loadSongsFromDB();
             songs.forEach(song => {
-                const url = URL.createObjectURL(song.blob);
+                const url = song.url;
                 addAudioCard(song.id, song.name, url);
             });
         });
@@ -121,7 +92,7 @@
             card.style.position = 'relative';
             card.innerHTML = `
                 <button class="delete-btn" style="position: absolute; top: 10px; right: 15px; background: rgba(255,0,0,0.6); border: none; color: white; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; font-size: 0.9rem; z-index: 20;" title="Eliminar canción">×</button>
-                <p class="song-title">🎶 ${name}</p>
+                <p class="song-title">🎶 ${esc(name)}</p>
                 <audio controls class="audios">
                     <source src="${dataSrc}" type="audio/mpeg">
                     Tu navegador no soporta audio.
@@ -150,9 +121,7 @@
             const id = getYouTubeID(url);
             if (id) {
                 addYoutubeCard(id);
-                const savedYoutube = JSON.parse(localStorage.getItem('custom_youtube') || '[]');
-                savedYoutube.push(id);
-                localStorage.setItem('custom_youtube', JSON.stringify(savedYoutube));
+                sb.from('youtube').insert({ video_id: id }).then(({ error }) => { if (error) alert('No se pudo guardar el link. ¿Iniciaste sesión? 🔒'); });
                 youtubeUrl.value = '';
             } else {
                 alert("URL de YouTube no válida");
@@ -171,16 +140,13 @@
 
             card.querySelector('.delete-btn').addEventListener('click', () => {
                 card.remove();
-                let yts = JSON.parse(localStorage.getItem('custom_youtube') || '[]');
-                yts = yts.filter(item => item !== id);
-                localStorage.setItem('custom_youtube', JSON.stringify(yts));
+                sb.from('youtube').delete().eq('video_id', id);
             });
 
             audioPlaylist.appendChild(card);
         }
 
-        const savedYoutube = JSON.parse(localStorage.getItem('custom_youtube') || '[]');
-        savedYoutube.forEach(id => addYoutubeCard(id));
+        sb.from('youtube').select('video_id').order('created_at').then(({ data }) => (data || []).forEach(r => addYoutubeCard(r.video_id)));
     </script>
 </body>
 

@@ -73,67 +73,38 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+    <script src="supa.js"></script>
     <script>
         const fotoInput = document.getElementById('foto-input');
         const galleryUl = document.querySelector('.gallery ul');
 
-        // IndexedDB para fotos sin límite de tamaño y guardado permanente
-        const PHOTO_DB_NAME = 'PhotoAppDB';
-        const PHOTO_DB_VERSION = 1;
-        let photoDb;
-
-        function initPhotoDB() {
-            return new Promise((resolve, reject) => {
-                const request = indexedDB.open(PHOTO_DB_NAME, PHOTO_DB_VERSION);
-                request.onupgradeneeded = (e) => {
-                    const db = e.target.result;
-                    if (!db.objectStoreNames.contains('photos')) {
-                        db.createObjectStore('photos', { keyPath: 'id', autoIncrement: true });
-                    }
-                };
-                request.onsuccess = (e) => {
-                    photoDb = e.target.result;
-                    resolve(photoDb);
-                };
-                request.onerror = (e) => reject(e);
-            });
+        // Fotos en Supabase Storage (se ven desde cualquier dispositivo)
+        function initPhotoDB() { return Promise.resolve(); }
+        async function savePhotoToDB(file) {
+            const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+            const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+            const up = await sb.storage.from('fotos').upload(path, file);
+            if (up.error) { alert('No se pudo subir la foto. ¿Iniciaste sesión? 🔒'); throw up.error; }
+            const { data, error } = await sb.from('photos').insert({ path }).select('id').single();
+            if (error) throw error;
+            return data.id;
         }
-
-        function savePhotoToDB(blob) {
-            return new Promise((resolve, reject) => {
-                const transaction = photoDb.transaction(['photos'], 'readwrite');
-                const store = transaction.objectStore('photos');
-                const request = store.add({ blob });
-                request.onsuccess = () => resolve(request.result);
-                request.onerror = (e) => reject(e);
-            });
+        async function loadPhotosFromDB() {
+            const { data } = await sb.from('photos').select('*').order('created_at', { ascending: true });
+            return (data || []).map(x => ({ ...x, url: sb.storage.from('fotos').getPublicUrl(x.path).data.publicUrl }));
         }
-
-        function loadPhotosFromDB() {
-            return new Promise((resolve, reject) => {
-                const transaction = photoDb.transaction(['photos'], 'readonly');
-                const store = transaction.objectStore('photos');
-                const request = store.getAll();
-                request.onsuccess = () => resolve(request.result);
-                request.onerror = (e) => reject(e);
-            });
-        }
-
-        function deletePhotoFromDB(id) {
-            return new Promise((resolve, reject) => {
-                const transaction = photoDb.transaction(['photos'], 'readwrite');
-                const store = transaction.objectStore('photos');
-                const request = store.delete(id);
-                request.onsuccess = () => resolve();
-                request.onerror = (e) => reject(e);
-            });
+        async function deletePhotoFromDB(id) {
+            const { data } = await sb.from('photos').select('path').eq('id', id).maybeSingle();
+            await sb.from('photos').delete().eq('id', id);
+            if (data) await sb.storage.from('fotos').remove([data.path]);
         }
 
         // Cargar fotos guardadas
         initPhotoDB().then(async () => {
             const photos = await loadPhotosFromDB();
             photos.forEach(item => {
-                const url = URL.createObjectURL(item.blob);
+                const url = item.url;
                 addGalleryItem(item.id, url, true);
             });
         });
